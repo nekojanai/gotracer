@@ -31,9 +31,9 @@ func (sphere *Sphere) Hit(ray *ray.Ray, ray_t *util.Interval, rec *ray.HitRecord
 
 	// Find the nearest root that lies in the acceptable range
 	root := (-half_b - sqrtd) / a
-	if ray_t.Surrounds(root) {
+	if !ray_t.Surrounds(root) {
 		root = (-half_b + sqrtd) / a
-		if ray_t.Surrounds(root) {
+		if !ray_t.Surrounds(root) {
 			return false
 		}
 	}
