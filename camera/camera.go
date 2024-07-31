@@ -7,17 +7,19 @@ import (
 
 	"cat7.sh/raytracer/color"
 	"cat7.sh/raytracer/ray"
+	"cat7.sh/raytracer/util"
 	"cat7.sh/raytracer/vec3"
 )
 
 type Camera struct {
-	aspect_ratio  float64
-	image_width   float64
-	image_height  float64
-	center        *vec3.Point3
-	pixel00_loc   *vec3.Point3
-	pixel_delta_u *vec3.Vec3
-	pixel_delta_v *vec3.Vec3
+	aspect_ratio      float64
+	image_width       float64
+	image_height      float64
+	samples_per_pixel int
+	center            *vec3.Point3
+	pixel00_loc       *vec3.Point3
+	pixel_delta_u     *vec3.Vec3
+	pixel_delta_v     *vec3.Vec3
 }
 
 func NewCamera() *Camera {
@@ -64,15 +66,34 @@ func (camera *Camera) Render(world ray.IHittable) {
 	for j := 0; j < int(camera.image_height); j++ {
 		fmt.Printf("lines remaining: %v \n", int(camera.image_height)-j)
 		for i := 0; i < int(camera.image_width); i++ {
-			pixel_center := camera.pixel00_loc.Add(camera.pixel_delta_u.Scale(float64(i)).Add(camera.pixel_delta_v.Scale(float64(j))))
-			ray_direction := pixel_center.Sub(camera.center)
-			r := ray.NewRay(camera.center, ray_direction)
+			pixel_color := color.NewColor(0, 0, 0)
+			for sample := 0; sample < camera.samples_per_pixel; sample++ {
+				r := camera.getRay(i, j)
+				pixel_color = pixel_color.Add(r.Color(world))
+			}
 
-			pixel_color := r.Color(world)
-			output00.WriteString(color.WriteColor(pixel_color))
+			output00.WriteString(color.WriteColor(pixel_color, camera.samples_per_pixel))
 		}
 		output00.WriteString("\n")
 	}
 
 	os.WriteFile("output.ppm", output00.Bytes(), 0644)
+}
+
+func (camera *Camera) getRay(i, j int) *ray.Ray {
+	// Get a randomly sampled camera ray for the pixel
+
+	pixel_center := camera.pixel00_loc.Add(camera.pixel_delta_u.Scale(float64(i))).Add(camera.pixel_delta_v.Scale(float64(j)))
+	pixel_sample := pixel_center.Add(camera.pixelSampleSquare())
+
+	ray_origin := camera.center
+	ray_direction := pixel_sample.Sub(ray_origin)
+
+	return ray.NewRay(ray_origin, ray_direction)
+}
+
+func (camera *Camera) pixelSampleSquare() *vec3.Vec3 {
+	px := -0.5 + util.RandomFloat64(0, 1)
+	py := -0.5 + util.RandomFloat64(0, 1)
+	return camera.pixel_delta_u.Scale(px).Add(camera.pixel_delta_v.Scale(py))
 }

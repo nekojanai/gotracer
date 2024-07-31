@@ -21,8 +21,8 @@ type Ray struct {
 	dir  *vec3.Vec3
 }
 
-func NewRay(orig *vec3.Vec3, dir *vec3.Vec3) Ray {
-	return Ray{orig: orig, dir: dir}
+func NewRay(orig *vec3.Vec3, dir *vec3.Vec3) *Ray {
+	return &Ray{orig: orig, dir: dir}
 }
 
 func (ray *Ray) Origin() *vec3.Vec3 {

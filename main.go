@@ -17,7 +17,7 @@ func main() {
 
 	camera := camera.NewCamera()
 	camera.SetAspectRatio(16.0 / 9.0)
-	camera.SetImageWidth(1920.0)
+	camera.SetImageWidth(640.0)
 
 	camera.Render(world)
 }
