@@ -51,10 +51,14 @@ func (ray *Ray) HitSphere(center *vec3.Vec3, radius float64) float64 {
 	}
 }
 
-func (ray *Ray) Color(world IHittable) *color.Color {
+func (ray *Ray) Color(depth int, world IHittable) *color.Color {
+	if depth <= 0 {
+		return color.NewColor(0, 0, 0)
+	}
 	rec := &HitRecord{}
-	if world.Hit(ray, util.NewInterval(0, math.Inf(0)), rec) {
-		return rec.normal.Add(color.NewColor(0, 0, 0)).Scale(0.5)
+	if world.Hit(ray, util.NewInterval(0.001, math.Inf(0)), rec) {
+		direction := rec.normal.Add(vec3.RandomUnit())
+		return NewRay(rec.p, direction).Color(depth-1, world).Scale(0.5)
 	}
 
 	unit_direction := ray.Direction().Unit()

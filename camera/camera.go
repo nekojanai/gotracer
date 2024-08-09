@@ -16,6 +16,7 @@ type Camera struct {
 	image_width       float64
 	image_height      float64
 	samples_per_pixel int
+	max_depth         int
 	center            *vec3.Point3
 	pixel00_loc       *vec3.Point3
 	pixel_delta_u     *vec3.Vec3
@@ -38,7 +39,14 @@ func (camera *Camera) SetSamplesPerPixel(samples_per_pixel int) {
 	camera.samples_per_pixel = samples_per_pixel
 }
 
+func (camera *Camera) SetMaxDepth(max_depth int) {
+	camera.max_depth = max_depth
+}
+
 func (camera *Camera) Initialize() {
+	if camera.max_depth < 1 {
+		camera.max_depth = 10
+	}
 	if camera.samples_per_pixel < 1 {
 		camera.samples_per_pixel = 1
 	}
@@ -76,7 +84,7 @@ func (camera *Camera) Render(world ray.IHittable) {
 			pixel_color := color.NewColor(0, 0, 0)
 			for sample := 0; sample < camera.samples_per_pixel; sample++ {
 				r := camera.getRay(i, j)
-				pixel_color = pixel_color.Add(r.Color(world))
+				pixel_color = pixel_color.Add(r.Color(camera.max_depth, world))
 			}
 
 			output00.WriteString(color.WriteColor(pixel_color, camera.samples_per_pixel))

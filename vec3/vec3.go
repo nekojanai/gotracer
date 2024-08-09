@@ -2,6 +2,8 @@ package vec3
 
 import (
 	"math"
+
+	"cat7.sh/raytracer/util"
 )
 
 type Vec3 struct {
@@ -70,4 +72,30 @@ func (vec *Vec3) Div(t float64) *Vec3 {
 
 func (vec *Vec3) Unit() *Vec3 {
 	return vec.Div(vec.Length())
+}
+
+func (vec *Vec3) RandomOnHemisphere() *Vec3 {
+	on_unit_sphere := RandomUnit()
+	if on_unit_sphere.Dot(vec) > 0 {
+		return on_unit_sphere
+	} else {
+		return on_unit_sphere.Neg()
+	}
+}
+
+func RandomInUnitSphere() *Vec3 {
+	for {
+		p := Random(-1, 1)
+		if p.LengthSquared() < 1 {
+			return p
+		}
+	}
+}
+
+func RandomUnit() *Vec3 {
+	return RandomInUnitSphere().Unit()
+}
+
+func Random(min, max float64) *Vec3 {
+	return &Vec3{x: util.RandomFloat64(min, max), y: util.RandomFloat64(min, max), z: util.RandomFloat64(min, max)}
 }
