@@ -1,5 +1,7 @@
 # gotracer
 ### Raytracing with golang
-run
-```go run main.go```
+usage
+```
+  go run main.go WIDTH SAMPLES_PER_PIXEL
+```
 to generate output.ppm

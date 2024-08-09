@@ -34,7 +34,14 @@ func (camera *Camera) SetImageWidth(image_width float64) {
 	camera.image_width = image_width
 }
 
+func (camera *Camera) SetSamplesPerPixel(samples_per_pixel int) {
+	camera.samples_per_pixel = samples_per_pixel
+}
+
 func (camera *Camera) Initialize() {
+	if camera.samples_per_pixel < 1 {
+		camera.samples_per_pixel = 1
+	}
 	camera.image_height = camera.image_width / camera.aspect_ratio
 	if camera.image_height < 1 {
 		camera.image_height = 1
@@ -64,7 +71,7 @@ func (camera *Camera) Render(world ray.IHittable) {
 	output00.WriteString(fmt.Sprintf("P3\n%v %v\n255\n", camera.image_width, camera.image_height))
 
 	for j := 0; j < int(camera.image_height); j++ {
-		fmt.Printf("lines remaining: %v \n", int(camera.image_height)-j)
+		//fmt.Printf("lines remaining: %v \n", int(camera.image_height)-j)
 		for i := 0; i < int(camera.image_width); i++ {
 			pixel_color := color.NewColor(0, 0, 0)
 			for sample := 0; sample < camera.samples_per_pixel; sample++ {
@@ -77,7 +84,7 @@ func (camera *Camera) Render(world ray.IHittable) {
 		output00.WriteString("\n")
 	}
 
-	os.WriteFile("output.ppm", output00.Bytes(), 0644)
+	os.WriteFile(fmt.Sprintf("out/%v", util.RandomFilename(fmt.Sprintf("IMGw%vh%vs%vIMG", camera.image_width, camera.image_height, camera.samples_per_pixel), ".ppm")), output00.Bytes(), 0644)
 }
 
 func (camera *Camera) getRay(i, j int) *ray.Ray {
