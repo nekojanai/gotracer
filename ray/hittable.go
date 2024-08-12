@@ -8,8 +8,13 @@ import (
 type HitRecord struct {
 	p          *vec3.Point3
 	normal     *vec3.Vec3
+	mat        *Material
 	t          float64
 	front_face bool
+}
+
+type Material interface {
+	Scatter()
 }
 
 func (hitRecord *HitRecord) SetFaceNormal(ray *Ray, outward_normal *vec3.Vec3) {
